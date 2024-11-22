@@ -306,17 +306,15 @@
 .view-activities-button:hover {
     background-color: #00509e;
 }
+ </style>
+ </head>
 
-
-
-    </style>
-</head>
-<body>
+ <body>
     <header>
         <div id="welcome-message"></div>
         <script>
-            // Fetch user data from the server
-            fetch('/get-user')
+            // Fetch user data from the backend
+            fetch('https://trip-wise-3njr.onrender.com/get-user')
                 .then(response => response.json())
                 .then(data => {
                     if (data.name) {
@@ -335,21 +333,20 @@
         </div>
         <nav>
             <ul class="nav-links">
-                <li><a href="Trip.html">Home</a></li>
+                <li><a href="./Trip.html">Home</a></li>
                 <li class="dropdown">
                     <a href="#">Features</a>
                     <ul class="dropdown-content">
                         <li><a href="#features">Itinerary Management</a></li>
-                        <li><a href="index.html">Flight Lookup</a></li>
+                        <li><a href="./index.html">Flight Lookup</a></li>
                         <li><a href="#features">Budget Tracking</a></li>
                         <li><a href="#features">Local Recommendations</a></li>
                     </ul>
                 </li>
                 <li><a href="#destinations">Destinations</a></li>
                 <li><a href="#contact">Contact</a></li>
-                <!-- Logout Button -->
                 <li>
-                    <form action="/logout" method="GET" style="display: inline;">
+                    <form action="https://trip-wise-3njr.onrender.com/logout" method="GET" style="display: inline;">
                         <button type="submit" class="logout-button">Logout</button>
                     </form>
                 </li>
@@ -380,7 +377,8 @@
             }
 
             try {
-                const response = await fetch('/search-hotels-by-iata', {
+                // Fetch hotel data from Render backend
+                const response = await fetch('https://trip-wise-3njr.onrender.com/search-hotels-by-iata', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ iataCode })
@@ -393,39 +391,38 @@
                 alert('Failed to fetch hotel data. Please try again.');
             }
         });
+
         function displayHotels(hotels) {
-    const hotelsDiv = document.getElementById('hotels');
-    hotelsDiv.innerHTML = ''; // Clear previous results
+            const hotelsDiv = document.getElementById('hotels');
+            hotelsDiv.innerHTML = ''; // Clear previous results
 
-    if (!hotels || hotels.length === 0) {
-        hotelsDiv.innerHTML = '<p>No hotels found for the selected city.</p>';
-        return;
-    }
+            if (!hotels || hotels.length === 0) {
+                hotelsDiv.innerHTML = '<p>No hotels found for the selected city.</p>';
+                return;
+            }
 
-    hotels.forEach((hotel) => {
-        console.log(hotel); // Log each hotel object to inspect its structure
-        const { name, geoCode } = hotel;
-        const hotelId = hotel.hotelId || hotel.Hotel?.hotelId || 'Undefined'; // Adjust for nested structure if necessary
-        const latitude = geoCode?.latitude || 'N/A';
-        const longitude = geoCode?.longitude || 'N/A';
+            hotels.forEach((hotel) => {
+                const { name, geoCode } = hotel;
+                const hotelId = hotel.hotelId || 'Undefined';
+                const latitude = geoCode?.latitude || 'N/A';
+                const longitude = geoCode?.longitude || 'N/A';
 
-        const redirectActivitiesUrl = `activities.html?latitude=${latitude}&longitude=${longitude}`;
-        const redirectOffersUrl = `offers.html?hotelId=${hotelId}`;
+                const redirectActivitiesUrl = `./activities.html?latitude=${latitude}&longitude=${longitude}`;
+                const redirectOffersUrl = `./offers.html?hotelId=${hotelId}`;
 
-        const hotelDiv = document.createElement('div');
-        hotelDiv.className = 'hotel';
-        hotelDiv.innerHTML = `
-            <h3>${name || 'Hotel Name Unavailable'}</h3>
-            <p><strong>Coordinates:</strong> ${latitude}, ${longitude}</p>
-            <p><strong>Hotel ID:</strong> ${hotelId}</p>
-            <p><a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="maps-link">View on Google Maps</a></p>
-            <button class="view-activities-button" onclick="window.location.href='${redirectActivitiesUrl}'">View P.O.Is</button>
-            <button class="view-offers-button" onclick="window.location.href='${redirectOffersUrl}'">View Offers</button>
-        `;
-        hotelsDiv.appendChild(hotelDiv);
-    });
-}
-
+                const hotelDiv = document.createElement('div');
+                hotelDiv.className = 'hotel';
+                hotelDiv.innerHTML = `
+                    <h3>${name || 'Hotel Name Unavailable'}</h3>
+                    <p><strong>Coordinates:</strong> ${latitude}, ${longitude}</p>
+                    <p><strong>Hotel ID:</strong> ${hotelId}</p>
+                    <p><a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="maps-link">View on Google Maps</a></p>
+                    <button class="view-activities-button" onclick="window.location.href='${redirectActivitiesUrl}'">View P.O.Is</button>
+                    <button class="view-offers-button" onclick="window.location.href='${redirectOffersUrl}'">View Offers</button>
+                `;
+                hotelsDiv.appendChild(hotelDiv);
+            });
+        }
     </script>
 </body>
 </html>
