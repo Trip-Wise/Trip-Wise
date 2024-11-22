@@ -22,7 +22,7 @@ const duffel = new Duffel({
 });
 
 app.use(cors({
-    origin: ['https://trip-wise.github.io/'],
+    origin: ['https://trip-wise.github.io/Trip-Wise/'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true
