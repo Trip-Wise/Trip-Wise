@@ -43,12 +43,12 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    res.redirect('/signup.html');
+    res.redirect('./signup.html');
 });
 
-app.get('/Trip.html', (req, res) => {
+app.get('./Trip.html', (req, res) => {
     if (!req.session.userName) {
-        return res.redirect('/signup.html');
+        return res.redirect('./signup.html');
     }
     res.sendFile(path.join(__dirname, 'public', 'Trip.html'));
 });
@@ -72,7 +72,7 @@ app.get('/logout', (req, res) => {
         if (err) {
             return res.status(500).send('Error logging out.');
         }
-        res.redirect('/login.html'); // Redirect to the login page after logout
+        res.redirect('./login.html'); // Redirect to the login page after logout
     });
 });
 
@@ -100,7 +100,7 @@ app.post('/signup', async (req, res) => {
         req.session.userId = user.id;
         req.session.userName = user.name;
 
-        res.redirect('/Trip.html');
+        res.redirect('./Trip.html');
     } catch (err) {
         console.error('Error inserting user:', err);
         res.status(500).send('Error registering user');
