@@ -294,7 +294,7 @@
 
     <script>
         // Fetch user data from the server
-        fetch('/get-user')
+        fetch('https://trip-wise-3njr.onrender.com/get-user')
             .then(response => response.json())
             .then(data => {
                 if (data.name) {
@@ -315,22 +315,21 @@
 </div>
 <nav>
     <ul class="nav-links">
-        <li><a href="Trip.html">Home</a></li>
+        <li><a href="./Trip.html">Home</a></li>
         <li class="dropdown">
             <a href="#">Features</a>
             <ul class="dropdown-content">
                 <li><a href="#features">Itinerary Management</a></li>
-                <li><a href="index.html">Flight lookup</a></li>
-                <li><a href="Hotel.html">Hotel Lookup</a></li>
+                <li><a href="./index.html">Flight lookup</a></li>
+                <li><a href="./Hotel.html">Hotel Lookup</a></li>
                 <li><a href="#features">Budget Tracking</a></li>
-                <li><a href="#features">Local Recommendations</a></li>
             </ul>
         </li>
         <li><a href="#destinations">Destinations</a></li>
         <li><a href="#contact">Contact</a></li>
         <!-- Logout Button -->
         <li>
-            <form action="/logout" method="GET" style="display: inline;">
+            <form action="https://trip-wise-3njr.onrender.com/logout" method="GET" style="display: inline;">
                 <button type="submit" class="logout-button">Logout</button>
             </form>
         </li>
