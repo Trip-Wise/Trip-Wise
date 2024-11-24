@@ -21,7 +21,7 @@ const duffel = new Duffel({
 });
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://trip-wise.github.io/Trip-Wise/'],
+    origin: ['http://localhost:3000', 'https://trip-wise.github.io'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
     credentials: true
@@ -42,14 +42,14 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    res.redirect('https://trip-wise.github.io/Trip-Wise/signup.html');
+    res.redirect('/signup.html');
 });
 
-app.get('./Trip.html', (req, res) => {
+app.get('Trip.html', (req, res) => {
     if (!req.session.userName) {
-        return res.redirect('https://trip-wise.github.io/Trip-Wise/signup.html');
+        return res.redirect('/signup.html');
     }
-    res.redirect('https://trip-wise.github.io/Trip-Wise/Trip.html');
+    res.redirect('/Trip.html');
 });
 
 
@@ -71,7 +71,7 @@ app.get('/logout', (req, res) => {
         if (err) {
             return res.status(500).send('Error logging out.');
         }
-        res.redirect('https://trip-wise.github.io/Trip-Wise/login.html'); // Redirect to the login page after logout
+        res.redirect('/login.html'); // Redirect to the login page after logout
     });
 });
 
@@ -99,7 +99,7 @@ app.post('/signup', async (req, res) => {
         req.session.userId = user.id;
         req.session.userName = user.name;
 
-        res.redirect('https://trip-wise.github.io/Trip-Wise/Trip.html');
+        res.redirect('/Trip.html');
     } catch (err) {
         console.error('Error inserting user:', err);
         res.status(500).send('Error registering user');
@@ -353,23 +353,25 @@ app.post('/add-itinerary', async (req, res) => {
     }
 });
 
+// Route to fetch user itineraries
 app.get('/itineraries', async (req, res) => {
-    const userId = req.session.userId; // Ensure the user is logged in
-
-    if (!userId) {
+    if (!req.session.userId) {
         return res.status(401).json({ error: 'User not logged in' });
     }
 
+    const userId = req.session.userId;
+    
     try {
-        const query = 'SELECT * FROM itinerary WHERE user_id = $1 ORDER BY start_date';
-        const { rows } = await pool.query(query, [userId]);
-
-        res.json(rows); // Send an array of itineraries
+        const result = await pool.query('SELECT * FROM itinerary WHERE user_id = $1', [userId]);
+        
+        // Return the list of itineraries as an array
+        res.json(result.rows); // `result.rows` is an array of itineraries
     } catch (error) {
         console.error('Error fetching itineraries:', error);
         res.status(500).json({ error: 'Failed to fetch itineraries' });
     }
 });
+
 
 
 
