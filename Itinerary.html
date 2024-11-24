@@ -305,14 +305,23 @@
         </form>
     
         <script>
-            async function fetchItineraries() {
+           async function fetchItineraries() {
     const response = await fetch('https://trip-wise-3njr.onrender.com/itineraries', {
-        credentials: 'include', // Ensures cookies are sent with the request
+        credentials: 'include',
     });
+
+    // Log the response to see its structure
     const itineraries = await response.json();
+    console.log('Itineraries Response:', itineraries);
 
     const itinerariesDiv = document.getElementById('itineraries');
     itinerariesDiv.innerHTML = '';
+
+    if (!Array.isArray(itineraries)) {
+        itinerariesDiv.innerHTML = '<p>Failed to load itineraries. Please try again later.</p>';
+        console.error('Expected an array, but received:', itineraries);
+        return;
+    }
 
     itineraries.forEach(itinerary => {
         const itineraryDiv = document.createElement('div');
@@ -328,6 +337,7 @@
         itinerariesDiv.appendChild(itineraryDiv);
     });
 }
+
 
     
 async function deleteItinerary(id) {
