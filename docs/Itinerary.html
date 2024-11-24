@@ -306,20 +306,35 @@
     
         <script>
            async function fetchItineraries() {
-    const response = await fetch('https://trip-wise-3njr.onrender.com/itineraries', {
-        credentials: 'include',
-    });
+    try {
+        const response = await fetch('https://trip-wise-3njr.onrender.com/itineraries');
+        
+        // Check if the response is OK (status 200-299)
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error(errorData.error); // Display the error message
+            return;
+        }
 
-    // Log the response to see its structure
-    const itineraries = await response.json();
-    console.log('Itineraries Response:', itineraries);
+        const itineraries = await response.json();
 
+        if (Array.isArray(itineraries)) {
+            displayItineraries(itineraries);
+        } else {
+            console.error('Expected an array, but received:', itineraries);
+        }
+    } catch (error) {
+        console.error('Error fetching itineraries:', error);
+    }
+}
+
+// Display itineraries
+function displayItineraries(itineraries) {
     const itinerariesDiv = document.getElementById('itineraries');
-    itinerariesDiv.innerHTML = '';
+    itinerariesDiv.innerHTML = ''; // Clear previous results
 
-    if (!Array.isArray(itineraries)) {
-        itinerariesDiv.innerHTML = '<p>Failed to load itineraries. Please try again later.</p>';
-        console.error('Expected an array, but received:', itineraries);
+    if (itineraries.length === 0) {
+        itinerariesDiv.innerHTML = '<p>No itineraries found.</p>';
         return;
     }
 

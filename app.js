@@ -353,23 +353,25 @@ app.post('/add-itinerary', async (req, res) => {
     }
 });
 
+// Route to fetch user itineraries
 app.get('/itineraries', async (req, res) => {
-    const userId = req.session.userId; // Ensure the user is logged in
-
-    if (!userId) {
+    if (!req.session.userId) {
         return res.status(401).json({ error: 'User not logged in' });
     }
 
+    const userId = req.session.userId;
+    
     try {
-        const query = 'SELECT * FROM itinerary WHERE user_id = $1 ORDER BY start_date';
-        const { rows } = await pool.query(query, [userId]);
-
-        res.json(rows); // Send an array of itineraries
+        const result = await pool.query('SELECT * FROM itinerary WHERE user_id = $1', [userId]);
+        
+        // Return the list of itineraries as an array
+        res.json(result.rows); // `result.rows` is an array of itineraries
     } catch (error) {
         console.error('Error fetching itineraries:', error);
         res.status(500).json({ error: 'Failed to fetch itineraries' });
     }
 });
+
 
 
 
