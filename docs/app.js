@@ -72,7 +72,7 @@ app.get('/logout', (req, res) => {
         if (err) {
             return res.status(500).send('Error logging out.');
         }
-        res.redirect('./login.html'); // Redirect to the login page after logout
+        res.redirect('login.html'); // Redirect to the login page after logout
     });
 });
 
