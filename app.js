@@ -8,7 +8,6 @@ const { Duffel } = require('@duffel/api');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const app = express();
-const PORT = 3000;
 const Amadeus = require("amadeus");
 const axios = require('axios');
 
@@ -22,7 +21,7 @@ const duffel = new Duffel({
 });
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://trip-wise.github.io/Trip-Wise/','https://trip-wise.github.io'],
+    origin: ['http://localhost:3000', 'https://trip-wise.github.io/Trip-Wise/'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
     credentials: true
@@ -43,14 +42,14 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-    res.redirect('./signup.html');
+    res.redirect('https://trip-wise.github.io/Trip-Wise/signup.html');
 });
 
 app.get('./Trip.html', (req, res) => {
     if (!req.session.userName) {
-        return res.redirect('./signup.html');
+        return res.redirect('https://trip-wise.github.io/Trip-Wise/signup.html');
     }
-    res.sendFile(path.join(__dirname, 'public', 'Trip.html'));
+    res.redirect('https://trip-wise.github.io/Trip-Wise/Trip.html');
 });
 
 
@@ -72,7 +71,7 @@ app.get('/logout', (req, res) => {
         if (err) {
             return res.status(500).send('Error logging out.');
         }
-        res.redirect('./login.html'); // Redirect to the login page after logout
+        res.redirect('https://trip-wise.github.io/Trip-Wise/login.html'); // Redirect to the login page after logout
     });
 });
 
@@ -100,7 +99,7 @@ app.post('/signup', async (req, res) => {
         req.session.userId = user.id;
         req.session.userName = user.name;
 
-        res.redirect('./Trip.html');
+        res.redirect('https://trip-wise.github.io/Trip-Wise/Trip.html');
     } catch (err) {
         console.error('Error inserting user:', err);
         res.status(500).send('Error registering user');
@@ -464,6 +463,8 @@ app.delete('/itineraries/:id', async (req, res) => {
 
 
 
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+const PORT = process.env.PORT || 3000; // Use the environment-provided port or default to 3000
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
