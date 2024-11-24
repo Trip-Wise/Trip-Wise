@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activities Near You</title>
+    <link rel="icon" type="image/x-icon" href="twcircle.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding-top: 60px;            
+}
+
+header {
+    position: fixed; /* Ensures the header stays fixed at the top */
+    top: 0;          /* Aligns the header to the top of the viewport */
+    left: 0;
+    width: 100%;     /* Spans the full width */
+    background-color: #00509e;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    z-index: 1000;   /* Keeps the header above other elements */
+}
+
+.logo h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+}
+
+nav ul li {
+    position: relative;
+}
+
+nav a {
+    color: #fff;
+    margin-left: 20px;
+    text-decoration: none;
+}
+
+nav .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #00509e;
+    top: 100%;
+    left: 0;
+    z-index: 1;
+}
+
+nav .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+        .dropdown-content li {
+            padding: 10px;
+            white-space: nowrap;
+        }
+
+        .dropdown-content li a {
+            color: #fff;
+        }
+
+        .dropdown-content li a:hover {
+            color: #00b4d8;
+        }
+
+        .hero {
+            background: #0077b6;
+            color: #fff;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .hero button {
+            background-color: #00b4d8;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .search-section {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #f0f0f0;
+        }
+
+        .search-section form {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .search-section input, .search-section button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .search-section button {
+            background-color: #0077b6;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .features {
+            background: #e3f2fd;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .features h2 {
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: #00509e;
+        }
+
+        .feature-card {
+            display: inline-block;
+            width: 200px;
+            margin: 10px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .destinations {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .destinations h2 {
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: #00509e;
+        }
+
+        .destination-card {
+            display: inline-block;
+            width: 250px;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .destination-card img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        footer {
+            background: #00509e;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer a {
+            color: #00b4d8;
+            text-decoration: none;
+        }
+          .logout-button {
+    background-color: #00b4d8;
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+
+}
+
+.logout-button:hover {
+    background-color: #223e5a;
+}        
+h1 {
+    margin-top: 20px;
+    font-size: 2em;
+    color: #444;
+    text-align: center;
+}
+
+#activity-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    margin-top: 20px;
+    text-align: center;
+}
+
+        #activity-form div {
+            margin-bottom: 15px;
+        }
+
+        label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    font-size: 1em;
+    color: #333;
+}
+button {
+    width: 100%;
+    padding: 10px 15px;
+    background: #007BFF;
+    color: #fff;
+    font-size: 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #activities-results {
+    margin-top: 20px;
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center; /* Center align results */
+}
+
+.activity {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Full width within the results container */
+}
+
+.activity h3 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.activity p {
+    margin: 10px 0 0;
+    color: #666;
+}
+</style>
+
+<header>
+    <div id="welcome-message"></div>
+
+<script>
+    // Fetch user data from the server
+    fetch('https://trip-wise-3njr.onrender.com/get-user')
+        .then(response => response.json())
+        .then(data => {
+            if (data.name) {
+                document.getElementById('welcome-message').innerText = `Welcome, ${data.name}!`;
+            } else {
+                document.getElementById('welcome-message').innerText = `Welcome, Guest!`;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching user data:', error);
+        });
+</script>
+           
+
+<div class="logo">
+<link rel="icon" type="image/x-icon" href="twcircle.png">
+<h1>TripWise</h1>
+</div>
+<nav>
+<ul class="nav-links">
+    <li><a href="Trip.html">Home</a></li>
+    <li class="dropdown">
+        <a href="#">Features</a>
+        <ul class="dropdown-content">
+            <li><a href="Itinerary.html">Itinerary Management</a></li>
+            <li><a href="index.html">Flight lookup</a></li>
+            <li><a href="Hotel.html">Hotel Lookup</a></li>
+            <li><a href="#features">Budget Tracking</a></li>
+        </ul>
+    </li>
+    <li><a href="#destinations">Destinations</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <!-- Logout Button -->
+    <li>
+        <form action="https://trip-wise-3njr.onrender.com/logout" method="GET" style="display: inline;">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </li>
+</ul>
+</nav>
+</header>
+
+</head>
+<body>
+    <h1>Explore Activities</h1>
+
+    <!-- Activity Form with Latitude and Longitude -->
+    <form id="activity-form" onsubmit="return false;">
+        <div>
+            <label for="latitude">Latitude:</label>
+            <input type="text" id="latitude" name="latitude" readonly>
+        </div>
+        <div>
+            <label for="longitude">Longitude:</label>
+            <input type="text" id="longitude" name="longitude" readonly>
+        </div>
+
+        <!-- Date Pickers for Start and End Dates -->
+        <div>
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date" name="start-date" required>
+        </div>
+        <div>
+            <label for="end-date">End Date:</label>
+            <input type="date" id="end-date" name="end-date" required>
+        </div>
+
+        <!-- Button to Search Activities -->
+        <div>
+            <button type="button" id="search-activities">Search Activities</button>
+        </div>
+    </form>
+
+    <!-- Section to Display Activities Results -->
+    <div id="activities-results"></div>
+
+    <script>
+        // Extract latitude and longitude from URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const latitude = params.get('latitude');
+        const longitude = params.get('longitude');
+    
+        // Populate form fields with the latitude and longitude values
+        document.getElementById('latitude').value = latitude;
+        document.getElementById('longitude').value = longitude;
+    
+        // Fetch activities when the "Search Activities" button is clicked
+        document.getElementById('search-activities').addEventListener('click', async () => {
+            if (!latitude || !longitude) {
+                alert('Latitude and Longitude are required!');
+                return;
+            }
+    
+            try {
+                const response = await fetch('https://trip-wise-3njr.onrender.com/search-activities', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ latitude, longitude }),
+                });
+    
+                const activities = await response.json();
+                displayActivities(activities);
+            } catch (error) {
+                console.error('Error fetching activities:', error);
+                alert('Failed to fetch activities. Please try again.');
+            }
+        });
+    
+        function displayActivities(activities) {
+    const resultsDiv = document.getElementById('activities-results');
+    resultsDiv.innerHTML = ''; // Clear previous results
+
+    if (!activities || activities.length === 0) {
+        resultsDiv.innerHTML = '<p>No activities found for the selected location.</p>';
+        return;
+    }
+
+    activities.forEach((activity) => {
+        const activityDiv = document.createElement('div');
+        activityDiv.className = 'activity';
+
+        // Build Google Maps URL
+        const mapsUrl = `https://www.google.com/maps?q=${activity.latitude},${activity.longitude}`;
+
+        // Extract tags
+        const tags = activity.tags ? activity.tags.join(', ') : 'No tags available';
+
+        // Insert activity details
+        activityDiv.innerHTML = `
+            <h3>${activity.name || 'No Name Available'}</h3>
+            <p>${activity.shortDescription || 'No Description Available'}</p>
+            <p>Price: ${activity.price}</p>
+            <p><a href="${activity.bookingLink}" target="_blank" >Booking Link</a></p>
+            <p><a href="${mapsUrl}" target="_blank" class="maps-link">View on Google Maps</a></p>
+            <button class="add-itinerary" data-name="${activity.name}" data-description="${activity.shortDescription || ''}">Add to Itinerary</button>
+        `;
+        resultsDiv.appendChild(activityDiv);
+    });
+
+    // Attach event listeners to "Add to Itinerary" buttons
+    document.querySelectorAll('.add-itinerary').forEach(button => {
+        button.addEventListener('click', addToItinerary);
+    });
+}
+
+    
+        // Add to Itinerary function
+async function addToItinerary(event) {
+    const button = event.target;
+    const name = button.dataset.name;
+    const description = button.dataset.description;
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+
+    // Get user_id from localStorage (or sessionStorage if preferred)
+    const user_id = localStorage.getItem('user_id');
+
+    // Debugging step: log values to check if anything is missing
+    console.log('User ID:', user_id);
+    console.log('Name:', name);
+    console.log('Description:', description);
+    console.log('Start Date:', startDate);
+    console.log('End Date:', endDate);
+
+    if (!user_id) {
+        alert('You must be logged in to add an itinerary.');
+        return;
+    }
+
+    // Check if all required fields are filled
+    if (!startDate || !endDate || !name || !description) {
+        alert('Please fill in all the fields (destination, start date, and end date).');
+        return;
+    }
+
+    try {
+        const response = await fetch('https://trip-wise-3njr.onrender.com/add-itinerary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: user_id,  // Add user_id to the request body
+                destination: name,
+                start_date: startDate,
+                end_date: endDate,
+                notes: description,
+            }),
+        });
+
+        if (response.ok) {
+            alert('Activity added to itinerary!');
+        } else {
+            const errorResponse = await response.json();
+            console.error('Error response:', errorResponse);
+            alert('Failed to add activity to itinerary.');
+        }
+    } catch (error) {
+        console.error('Error adding to itinerary:', error);
+        alert('An error occurred. Please try again.');
+    }
+}
+    </script>
+    
+</body>
+
+</html>
