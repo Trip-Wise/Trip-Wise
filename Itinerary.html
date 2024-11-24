@@ -306,64 +306,75 @@
     
         <script>
             async function fetchItineraries() {
-                const response = await fetch('https://trip-wise-3njr.onrender.com/itineraries');
-                const itineraries = await response.json();
+    const response = await fetch('https://trip-wise-3njr.onrender.com/itineraries', {
+        credentials: 'include', // Ensures cookies are sent with the request
+    });
+    const itineraries = await response.json();
+
+    const itinerariesDiv = document.getElementById('itineraries');
+    itinerariesDiv.innerHTML = '';
+
+    itineraries.forEach(itinerary => {
+        const itineraryDiv = document.createElement('div');
+        itineraryDiv.className = 'itinerary';
+        itineraryDiv.innerHTML = `
+            <p><strong>Destination:</strong> ${itinerary.destination}</p>
+            <p><strong>Start Date:</strong> ${itinerary.start_date}</p>
+            <p><strong>End Date:</strong> ${itinerary.end_date}</p>
+            <p><strong>Notes:</strong> ${itinerary.notes}</p>
+            <button onclick="deleteItinerary(${itinerary.id})">Delete</button>
+            <button onclick="editItinerary(${itinerary.id})">Edit</button>
+        `;
+        itinerariesDiv.appendChild(itineraryDiv);
+    });
+}
+
     
-                const itinerariesDiv = document.getElementById('itineraries');
-                itinerariesDiv.innerHTML = '';
+async function deleteItinerary(id) {
+    if (confirm('Are you sure you want to delete this itinerary?')) {
+        await fetch(`https://trip-wise-3njr.onrender.com/itineraries/${id}`, { 
+            method: 'DELETE', 
+            credentials: 'include', // Ensures cookies are sent
+        });
+        fetchItineraries();
+    }
+}
+
     
-                itineraries.forEach(itinerary => {
-                    const itineraryDiv = document.createElement('div');
-                    itineraryDiv.className = 'itinerary';
-                    itineraryDiv.innerHTML = `
-                        <p><strong>Destination:</strong> ${itinerary.destination}</p>
-                        <p><strong>Start Date:</strong> ${itinerary.start_date}</p>
-                        <p><strong>End Date:</strong> ${itinerary.end_date}</p>
-                        <p><strong>Notes:</strong> ${itinerary.notes}</p>
-                        <button onclick="deleteItinerary(${itinerary.id})">Delete</button>
-                        <button onclick="editItinerary(${itinerary.id})">Edit</button>
-                    `;
-                    itinerariesDiv.appendChild(itineraryDiv);
-                });
-            }
+async function editItinerary(id) {
+    const destination = prompt('Enter new destination:');
+    const start_date = prompt('Enter new start date (YYYY-MM-DD):');
+    const end_date = prompt('Enter new end date (YYYY-MM-DD):');
+    const notes = prompt('Enter new notes:') || 'N/A';
+
+    if (destination && start_date && end_date) {
+        await fetch(`https://trip-wise-3njr.onrender.com/itineraries/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ destination, start_date, end_date, notes }),
+            credentials: 'include', // Ensures cookies are sent
+        });
+        fetchItineraries();
+    }
+}
+
     
-            async function deleteItinerary(id) {
-                if (confirm('Are you sure you want to delete this itinerary?')) {
-                    await fetch(`https://trip-wise-3njr.onrender.com/itineraries/${id}`, { method: 'DELETE' });
-                    fetchItineraries();
-                }
-            }
-    
-            async function editItinerary(id) {
-                const destination = prompt('Enter new destination:');
-                const start_date = prompt('Enter new start date (YYYY-MM-DD):');
-                const end_date = prompt('Enter new end date (YYYY-MM-DD):');
-                const notes = prompt('Enter new notes:') || 'N/A';
-    
-                if (destination && start_date && end_date) {
-                    await fetch(`https://trip-wise-3njr.onrender.com/itineraries/${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ destination, start_date, end_date, notes }),
-                    });
-                    fetchItineraries();
-                }
-            }
-    
-            document.getElementById('itinerary-form').addEventListener('submit', async (event) => {
-                event.preventDefault();
-                const destination = document.getElementById('destination').value;
-                const start_date = document.getElementById('start-date').value;
-                const end_date = document.getElementById('end-date').value;
-                const notes = document.getElementById('notes').value || 'N/A';
-    
-                await fetch('https://trip-wise-3njr.onrender.com/itineraries', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ destination, start_date, end_date, notes }),
-                });
-                fetchItineraries();
-            });
+document.getElementById('itinerary-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const destination = document.getElementById('destination').value;
+    const start_date = document.getElementById('start-date').value;
+    const end_date = document.getElementById('end-date').value;
+    const notes = document.getElementById('notes').value || 'N/A';
+
+    await fetch('https://trip-wise-3njr.onrender.com/itineraries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destination, start_date, end_date, notes }),
+        credentials: 'include', // Ensures cookies are sent
+    });
+    fetchItineraries();
+});
+
     
             // Fetch and display itineraries on page load
             fetchItineraries();
