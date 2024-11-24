@@ -354,6 +354,112 @@ app.post('/add-itinerary', async (req, res) => {
     }
 });
 
+app.get('/itineraries', async (req, res) => {
+    const user_id = req.session.userId; // Ensure the user is logged in
+
+    if (!user_id) {
+        return res.status(401).json({ error: 'User not logged in' });
+    }
+
+    try {
+        const query = 'SELECT * FROM itinerary WHERE user_id = $1 ORDER BY start_date';
+        const result = await pool.query(query, [user_id]);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching itineraries:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/itineraries', async (req, res) => {
+    const user_id = req.session.userId;
+    const { destination, start_date, end_date, notes } = req.body;
+
+    if (!user_id || !destination || !start_date || !end_date) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+        const query = `
+            INSERT INTO itinerary (user_id, destination, start_date, end_date, notes)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;
+        `;
+        const values = [user_id, destination, start_date, end_date, notes || 'N/A'];
+
+        const result = await pool.query(query, values);
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error creating itinerary:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.put('/itineraries/:id', async (req, res) => {
+    const user_id = req.session.userId;
+    const { id } = req.params;
+    const { destination, start_date, end_date, notes } = req.body;
+
+    if (!user_id || !id || !destination || !start_date || !end_date) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+        const query = `
+            UPDATE itinerary
+            SET destination = $1, start_date = $2, end_date = $3, notes = $4
+            WHERE id = $5 AND user_id = $6
+            RETURNING *;
+        `;
+        const values = [destination, start_date, end_date, notes || 'N/A', id, user_id];
+
+        const result = await pool.query(query, values);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Itinerary not found or not authorized' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error updating itinerary:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.delete('/itineraries/:id', async (req, res) => {
+    const user_id = req.session.userId;
+    const { id } = req.params;
+
+    if (!user_id || !id) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+        const query = `
+            DELETE FROM itinerary
+            WHERE id = $1 AND user_id = $2
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [id, user_id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Itinerary not found or not authorized' });
+        }
+
+        res.json({ message: 'Itinerary deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting itinerary:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
+
+
+
 
 
   app.listen(PORT, () => {
