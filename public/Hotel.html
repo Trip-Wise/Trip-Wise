@@ -413,13 +413,13 @@
                 const hotelDiv = document.createElement('div');
                 hotelDiv.className = 'hotel';
                 hotelDiv.innerHTML = `
-                    <h3>${name || 'Hotel Name Unavailable'}</h3>
-                    <p><strong>Coordinates:</strong> ${latitude}, ${longitude}</p>
-                    <p><strong>Hotel ID:</strong> ${hotelId}</p>
-                    <p><a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="maps-link">View on Google Maps</a></p>
-                    <button class="view-activities-button" onclick="window.location.href='${redirectActivitiesUrl}'">View P.O.Is</button>
-                    <button class="view-offers-button" onclick="window.location.href='${redirectOffersUrl}'">View Offers</button>
-                `;
+    <h3>${name || 'Hotel Name Unavailable'}</h3>
+    <p><strong>Coordinates:</strong> ${latitude}, ${longitude}</p>
+    <p><strong>Hotel ID:</strong> ${hotelId}</p>
+    <p><a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="maps-link">View on Google Maps</a></p>
+    <button class="view-activities-button" onclick="window.location.href='${redirectActivitiesUrl}'">View P.O.Is</button>
+    <button class="activities-button" onclick="window.location.href='activities2.html?latitude=${latitude}&longitude=${longitude}'">View Activities</button>
+`;
                 hotelsDiv.appendChild(hotelDiv);
             });
         }
