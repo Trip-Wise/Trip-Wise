@@ -460,9 +460,9 @@ app.delete('/itineraries/:id', async (req, res) => {
 
 app.get('/budget', async (req, res) => {
     try {
-        const userId = req.session.userId; // Ensure the user is logged in
+        const userId = req.session.userId;
         if (!userId) {
-            return res.status(401).json({ error: 'User not logged in' });
+            return res.status(401).json({ error: 'User not logged in' }); // Ensure user is logged in
         }
 
         const query = `
@@ -472,12 +472,19 @@ app.get('/budget', async (req, res) => {
         `;
         const result = await pool.query(query, [userId]);
 
-        res.status(200).json(result.rows); // Send budget records
+        // Ensure result.rows is returned as an array
+        if (!Array.isArray(result.rows)) {
+            console.error('Expected an array, got:', result.rows);
+            return res.status(500).json({ error: 'Unexpected response from database' });
+        }
+
+        res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error fetching budget records:', error);
         res.status(500).json({ error: 'Failed to fetch budget records' });
     }
 });
+
 
 app.post('/budget', async (req, res) => {
     const { expense_name, amount_spent } = req.body;
@@ -508,6 +515,7 @@ app.post('/budget', async (req, res) => {
         res.status(500).json({ error: 'Failed to add budget record' });
     }
 });
+
 
 app.put('/budget/:id', async (req, res) => {
     const { id } = req.params;
@@ -574,12 +582,11 @@ app.delete('/budget/:id', async (req, res) => {
 
 app.get('/user-budget', async (req, res) => {
     try {
-        const userId = req.session.userId; // Ensure the user is logged in
+        const userId = req.session.userId;
         if (!userId) {
             return res.status(401).json({ error: 'User not logged in' });
         }
 
-        // Fetch total budget and sum of expenses
         const budgetQuery = `
             SELECT 
                 (SELECT budget FROM users WHERE id = $1) AS total_budget,
@@ -587,15 +594,22 @@ app.get('/user-budget', async (req, res) => {
             FROM budget
             WHERE user_id = $1;
         `;
+
         const result = await pool.query(budgetQuery, [userId]);
+
+        if (!result.rows || result.rows.length === 0) {
+            console.error('Unexpected query result:', result);
+            return res.status(500).json({ error: 'Failed to fetch user budget' });
+        }
 
         const { total_budget, amount_spent } = result.rows[0];
         res.status(200).json({ budget: total_budget || 0, amount_spent });
     } catch (error) {
         console.error('Error fetching user budget:', error);
-        res.status(500).json({ error: 'Failed to fetch user budget' });
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 app.put('/user-budget', async (req, res) => {
     const { budget } = req.body;
