@@ -101,40 +101,39 @@
 
         // Display activities
         function displayActivities(activities) {
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = ''; // Clear loading text
+    const activitiesDiv = document.getElementById('activities-results');
+    activitiesDiv.innerHTML = ''; // Clear previous results
 
-            if (!activities || activities.length === 0) {
-                resultsDiv.innerHTML = '<p>No activities found for the given coordinates.</p>';
-                return;
-            }
+    if (!activities || activities.length === 0) {
+        activitiesDiv.innerHTML = '<p>No activities found for the selected location.</p>';
+        return;
+    }
 
-            activities.forEach((activity) => {
-    const { name, shortDescription, latitude, longitude, category, rating, pictures, bookingLink, price, currencyCode } = activity;
+    activities.forEach((activity) => {
+        const { name, shortDescription, latitude, longitude, category, rating, pictures, bookingLink, price, currencyCode } = activity;
 
-    const activityDiv = document.createElement('div');
-    activityDiv.className = 'activity';
-    activityDiv.innerHTML = `
-        <h3>${name || 'No Name Available'}</h3>
-        <p><strong>Description:</strong> ${shortDescription || 'No Description Available'}</p>
-        <p><strong>Category:</strong> ${category || 'Not Specified'}</p>
-        <p><strong>Rating:</strong> ${rating || 'No rating available'}</p> <!-- Display rating -->
-        
-        ${pictures.length > 0 ? `
-            <div class="pictures">
-                ${pictures.map(picture => `<img src="${picture.url}" alt="Activity Image" />`).join('')}
-            </div>
-        ` : `<p>No images available.</p>`}
+        const activityDiv = document.createElement('div');
+        activityDiv.className = 'activity';
+        activityDiv.innerHTML = `
+            <h3>${name || 'No Name Available'}</h3>
+            <p><strong>Description:</strong> ${shortDescription || 'No Description Available'}</p>
+            <p><strong>Category:</strong> ${category || 'Not Specified'}</p>
+            <p><strong>Rating:</strong> ${rating || 'No rating available'}</p>
+            
+            ${pictures.length > 0 ? `
+                <div class="pictures">
+                    ${pictures.map(picture => `<img src="${picture.url}" alt="Activity Image" />`).join('')}
+                </div>
+            ` : `<p>No images available.</p>`}
 
-        <p><strong>Price:</strong> ${price ? `${price} ${currencyCode}` : 'Free'}</p>
-        <p><a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="maps-link">View on Google Maps</a></p>
-        ${bookingLink ? `<p><a href="${bookingLink}" target="_blank">Book Now</a></p>` : ''}
-    `;
+            <p><strong>Price:</strong> ${price ? `${price} ${currencyCode}` : 'Free'}</p>
+            <p><a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="maps-link">View on Google Maps</a></p>
+            ${bookingLink ? `<p><a href="${bookingLink}" target="_blank">Book Now</a></p>` : ''}
+        `;
+        activitiesDiv.appendChild(activityDiv); // Append to the parent div
+    });
+}
 
-    document.getElementById('activities-results').appendChild(activityDiv);
-});
-
-        }
     </script>
 </body>
 </html>

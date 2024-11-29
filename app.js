@@ -243,6 +243,8 @@ app.post('/search-activities', async (req, res) => {
             price: activity.price.amount,
             currencyCode: activity.price.currencyCode
         }));
+        
+
 
         console.log('Raw API Response:', JSON.stringify(response.data, null, 2));
         res.json(activities); // Send the transformed activities
