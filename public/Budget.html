@@ -84,7 +84,7 @@
             border-radius: 8px;
         }
 
-        .budget-form {
+        .budget-form, .set-budget-form {
             margin: 20px auto;
             max-width: 500px;
             padding: 15px;
@@ -170,6 +170,18 @@
         <div class="budget-summary">
             <div id="budget-total"></div>
             <div id="budget-remaining"></div>
+        </div>
+
+        <!-- Form to Set Total Budget -->
+        <div class="set-budget-form">
+            <h2>Set Your Budget</h2>
+            <form id="set-budget-form">
+                <div class="form-control">
+                    <label for="total-budget">Total Budget:</label>
+                    <input type="number" id="total-budget" step="0.01" required>
+                </div>
+                <button type="submit">Set Budget</button>
+            </form>
         </div>
 
         <!-- Form to Add New Budget -->
@@ -261,6 +273,23 @@
                 console.error('Error fetching budget records:', error);
             }
         }
+
+        document.getElementById('set-budget-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const totalBudget = document.getElementById('total-budget').value;
+
+            try {
+                await fetch('https://trip-wise-3njr.onrender.com/user-budget', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ total_budget: totalBudget }),
+                    credentials: 'include',
+                });
+                fetchUserBudget(); // Refresh budget summary
+            } catch (error) {
+                console.error('Error setting budget:', error);
+            }
+        });
 
         document.getElementById('budget-form').addEventListener('submit', async (event) => {
             event.preventDefault();
