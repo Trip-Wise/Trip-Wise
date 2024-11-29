@@ -352,23 +352,12 @@
             <label for="departure_date">Departure Date:</label>
             <input type="date" id="departure_date" name="departure_date" required>
 
+            <label for="itinerary-end-date">End Date:</label>
+            <input type="date" id="itinerary-end-date" name="end_date" required>
+
             <button type="submit">Search Flights</button>
         </form>
     </section>
-
-
-    <section class="itinerary-form">
-        <h2>Create Itinerary</h2>
-        <form id="itinerary-form">
-            <label for="itinerary-end-date">Select End Date:</label>
-            <input type="date" id="itinerary-end-date" required>
-        </form>
-    </section>
-    <section class="flight-results">
-        <h2>Flight Offers</h2>
-        <div id="results"></div>
-    </section>
-
 
     <section class="flight-results">
         <h2>Flight Offers</h2>
@@ -380,113 +369,129 @@
     </footer>
 
     <script>
-    const form = document.getElementById('flight-search-form');
-    const resultsDiv = document.getElementById('results');
+        const form = document.getElementById('flight-search-form');
+        const resultsDiv = document.getElementById('results');
 
-    form.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent form refresh
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent form refresh
 
-    const origin = document.getElementById('origin').value.trim().toUpperCase();
-    const destination = document.getElementById('destination').value.trim().toUpperCase();
-    const departureDate = document.getElementById('departure_date').value;
+            const origin = document.getElementById('origin').value.trim().toUpperCase();
+            const destination = document.getElementById('destination').value.trim().toUpperCase();
+            const departureDate = document.getElementById('departure_date').value;
+            const endDate = document.getElementById('itinerary-end-date').value;
 
-    if (!origin || !destination || !departureDate) {
-        alert('All fields are required.');
-        return;
-    }
+            if (!origin || !destination || !departureDate || !endDate) {
+                alert('All fields are required.');
+                return;
+            }
 
-    try {
-        const response = await fetch('https://trip-wise-3njr.onrender.com/search-flights', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ origin, destination, departure_date: departureDate }),
+            try {
+                const response = await fetch('https://trip-wise-3njr.onrender.com/search-flights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ origin, destination, departure_date: departureDate }),
+                });
+
+                const data = await response.json();
+                resultsDiv.innerHTML = ''; // Clear previous results
+
+                if (data.offers && data.offers.length > 0) {
+                    data.offers.forEach((offer) => {
+                        const flightDiv = document.createElement('div');
+                        flightDiv.className = 'flight-offer';
+
+                        // Extract data
+                        const airlineName = offer.owner.name;
+                        const airlineLogo = offer.owner.logo_symbol_url;
+                        const price = parseFloat(offer.total_amount).toFixed(2);
+                        const currency = offer.total_currency;
+                        const origin = offer.slices[0].segments[0].origin.name;
+                        const destination = offer.slices[0].segments[0].destination.name;
+                        const departingAt = new Date(offer.slices[0].segments[0].departing_at).toLocaleString();
+                        const arrivingAt = new Date(offer.slices[0].segments[0].arriving_at).toLocaleString();
+                        const duration = offer.slices[0].duration.replace('PT', '').replace('H', 'h ').replace('M', 'm');
+
+                        // Create result structure
+                        flightDiv.innerHTML = `
+                            <div class="flight-header">
+                                <img src="${airlineLogo}" alt="${airlineName}" class="airline-logo">
+                                <h3>${airlineName}</h3>
+                            </div>
+                            <p><strong>Price:</strong> ${price} ${currency}</p>
+                            <p><strong>Departure:</strong> ${origin} (${departingAt})</p>
+                            <p><strong>Arrival:</strong> ${destination} (${arrivingAt})</p>
+                            <p><strong>Duration:</strong> ${duration}</p>
+                            <button class="save-itinerary-button" 
+                                    data-destination="${destination}" 
+                                    data-start-date="${departureDate}" 
+                                    data-end-date="${endDate}">
+                                Save to Itinerary
+                            </button>
+                            <button class="save-budget-button"
+                                    data-airline="${airlineName}" 
+                                    data-price="${price}">
+                                Save to Budget
+                            </button>
+                        `;
+                        resultsDiv.appendChild(flightDiv);
+                    });
+                } else {
+                    resultsDiv.innerHTML = '<p>No flight offers found for the given criteria.</p>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>Error fetching flight offers: ${error.message}</p>`;
+            }
         });
 
-        const data = await response.json();
-        resultsDiv.innerHTML = ''; // Clear previous results
+        document.addEventListener('click', async (event) => {
+            if (event.target.classList.contains('save-itinerary-button')) {
+                const destination = event.target.dataset.destination;
+                const startDate = event.target.dataset.startDate;
+                const endDate = event.target.dataset.endDate;
+                const user_id = localStorage.getItem('user_id');
 
-        if (data.offers && data.offers.length > 0) {
-            data.offers.forEach((offer) => {
-                const flightDiv = document.createElement('div');
-                flightDiv.className = 'flight-offer';
+                try {
+                    const response = await fetch('https://trip-wise-3njr.onrender.com/add-itinerary', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id, destination, start_date: startDate, end_date: endDate }),
+                    });
 
-                // Extract data
-                const airlineName = offer.owner.name;
-                const airlineLogo = offer.owner.logo_symbol_url;
-                const price = `${offer.total_amount} ${offer.total_currency}`;
-                const origin = offer.slices[0].segments[0].origin.name;
-                const destination = offer.slices[0].segments[0].destination.name;
-                const departingAt = new Date(offer.slices[0].segments[0].departing_at).toLocaleString();
-                const arrivingAt = new Date(offer.slices[0].segments[0].arriving_at).toLocaleString();
-                const duration = offer.slices[0].duration.replace('PT', '').replace('H', 'h ').replace('M', 'm');
-
-                // Create result structure
-                flightDiv.innerHTML = `
-                    <div class="flight-header">
-                        <img src="${airlineLogo}" alt="${airlineName}" class="airline-logo">
-                        <h3>${airlineName}</h3>
-                    </div>
-                    <p><strong>Price:</strong> ${price}</p>
-                    <p><strong>Departure:</strong> ${origin} (${departingAt})</p>
-                    <p><strong>Arrival:</strong> ${destination} (${arrivingAt})</p>
-                    <p><strong>Duration:</strong> ${duration}</p>
-                    <button class="save-itinerary-button" 
-                            data-destination="${destination}" 
-                            data-start-date="${departureDate}">
-                        Save to Itinerary
-                    </button>
-                `;
-                resultsDiv.appendChild(flightDiv);
-            });
-        } else {
-            resultsDiv.innerHTML = '<p>No flight offers found for the given criteria.</p>';
-        }
-    } catch (error) {
-        resultsDiv.innerHTML = `<p>Error fetching flight offers: ${error.message}</p>`;
-    }
-});
-
-document.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('save-itinerary-button')) {
-        event.target.disabled = true; // Disable to prevent multiple clicks
-
-        const destination = event.target.dataset.destination;
-        const startDate = event.target.dataset.startDate;
-        const endDate = document.getElementById('itinerary-end-date').value;
-        const user_id = localStorage.getItem('user_id');
-        // Validate end date
-        if (!endDate) {
-            alert('Please select an end date for the itinerary.');
-            event.target.disabled = false; // Re-enable if validation fails
-            return;
-        }
-
-        // Send to backend
-        try {
-            const response = await fetch('https://trip-wise-3njr.onrender.com/add-itinerary', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: localStorage.getItem('user_id'), destination, start_date: startDate, end_date: endDate }),
-            });
-
-            if (response.ok) {
-                alert('Itinerary saved successfully!');
-            } else {
-                const result = await response.json();
-                alert(`Error saving itinerary: ${result.error}`);
+                    if (response.ok) {
+                        alert('Itinerary saved successfully!');
+                    } else {
+                        const result = await response.json();
+                        alert(`Error saving itinerary: ${result.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error saving itinerary:', error);
+                    alert('Failed to save itinerary. Please try again.');
+                }
             }
-        } catch (error) {
-            console.error('Error saving itinerary:', error);
-            alert('Failed to save itinerary. Please try again.');
-        } finally {
-            event.target.disabled = false; // Re-enable after completion
-        }
-    }
-});
 
+            if (event.target.classList.contains('save-budget-button')) {
+                const airline = event.target.dataset.airline;
+                const price = event.target.dataset.price;
 
+                try {
+                    const response = await fetch('https://trip-wise-3njr.onrender.com/budget', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ expense_name: airline, amount_spent: price }),
+                    });
 
-
+                    if (response.ok) {
+                        alert('Budget record created successfully!');
+                    } else {
+                        const result = await response.json();
+                        alert(`Error creating budget record: ${result.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error creating budget record:', error);
+                    alert('Failed to create budget record. Please try again.');
+                }
+            }
+        });
     </script>
 </body>
 </html>
