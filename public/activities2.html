@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/x-icon" href="twcircle.png">
+    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activities</title>
@@ -95,7 +97,7 @@
             }
 
             activities.forEach((activity) => {
-                const { name, shortDescription, latitude, longitude, category, tags, bookingLink, price, currency } = activity;
+                const { name, shortDescription, latitude, longitude, category, tags, bookingLink, price, currency, Type } = activity;
 
                 const activityDiv = document.createElement('div');
                 activityDiv.className = 'activity';
@@ -103,7 +105,7 @@
                     <h3>${name || 'No Name Available'}</h3>
                     <p><strong>Description:</strong> ${shortDescription || 'No Description Available'}</p>
                     <p><strong>Category:</strong> ${category || 'Not Specified'}</p>
-                    <p><strong>Tags:</strong> ${tags.length > 0 ? tags.join(', ') : 'None'}</p>
+                    <p><strong>Type:</strong> ${Type} : 'None'}</p>
                     <p><strong>Price:</strong> ${price ? `${price} ${currency}` : 'Free'}</p>
                     <p><a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="maps-link">View on Google Maps</a></p>
                     ${bookingLink ? `<p><a href="${bookingLink}" target="_blank">Book Now</a></p>` : ''}
