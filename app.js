@@ -458,9 +458,175 @@ app.delete('/itineraries/:id', async (req, res) => {
     }
 });
 
+app.get('/budget', async (req, res) => {
+    try {
+        const userId = req.session.userId; // Ensure the user is logged in
+        if (!userId) {
+            return res.status(401).json({ error: 'User not logged in' });
+        }
 
+        const query = `
+            SELECT id, expense_name, amount_spent
+            FROM budget
+            WHERE user_id = $1;
+        `;
+        const result = await pool.query(query, [userId]);
 
+        res.status(200).json(result.rows); // Send budget records
+    } catch (error) {
+        console.error('Error fetching budget records:', error);
+        res.status(500).json({ error: 'Failed to fetch budget records' });
+    }
+});
 
+app.post('/budget', async (req, res) => {
+    const { expense_name, amount_spent } = req.body;
+
+    try {
+        const userId = req.session.userId; // Ensure the user is logged in
+        if (!userId) {
+            return res.status(401).json({ error: 'User not logged in' });
+        }
+
+        if (!expense_name || !amount_spent) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const query = `
+            INSERT INTO budget (user_id, expense_name, amount_spent)
+            VALUES ($1, $2, $3)
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [userId, expense_name, amount_spent]);
+
+        res.status(201).json({
+            message: 'Budget record added successfully',
+            budget: result.rows[0],
+        });
+    } catch (error) {
+        console.error('Error adding budget record:', error);
+        res.status(500).json({ error: 'Failed to add budget record' });
+    }
+});
+
+app.put('/budget/:id', async (req, res) => {
+    const { id } = req.params;
+    const { expense_name, amount_spent } = req.body;
+
+    try {
+        const userId = req.session.userId; // Ensure the user is logged in
+        if (!userId) {
+            return res.status(401).json({ error: 'User not logged in' });
+        }
+
+        if (!expense_name || !amount_spent) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const query = `
+            UPDATE budget
+            SET expense_name = $1, amount_spent = $2
+            WHERE id = $3 AND user_id = $4
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [expense_name, amount_spent, id, userId]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Budget record not found or not authorized' });
+        }
+
+        res.status(200).json({
+            message: 'Budget record updated successfully',
+            budget: result.rows[0],
+        });
+    } catch (error) {
+        console.error('Error updating budget record:', error);
+        res.status(500).json({ error: 'Failed to update budget record' });
+    }
+});
+
+app.delete('/budget/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const userId = req.session.userId; // Ensure the user is logged in
+        if (!userId) {
+            return res.status(401).json({ error: 'User not logged in' });
+        }
+
+        const query = `
+            DELETE FROM budget
+            WHERE id = $1 AND user_id = $2
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [id, userId]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Budget record not found or not authorized' });
+        }
+
+        res.status(200).json({ message: 'Budget record deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting budget record:', error);
+        res.status(500).json({ error: 'Failed to delete budget record' });
+    }
+});
+
+app.get('/user-budget', async (req, res) => {
+    try {
+        const userId = req.session.userId; // Ensure the user is logged in
+        if (!userId) {
+            return res.status(401).json({ error: 'User not logged in' });
+        }
+
+        // Fetch total budget and sum of expenses
+        const budgetQuery = `
+            SELECT 
+                (SELECT budget FROM users WHERE id = $1) AS total_budget,
+                COALESCE(SUM(amount_spent), 0) AS amount_spent
+            FROM budget
+            WHERE user_id = $1;
+        `;
+        const result = await pool.query(budgetQuery, [userId]);
+
+        const { total_budget, amount_spent } = result.rows[0];
+        res.status(200).json({ budget: total_budget || 0, amount_spent });
+    } catch (error) {
+        console.error('Error fetching user budget:', error);
+        res.status(500).json({ error: 'Failed to fetch user budget' });
+    }
+});
+
+app.put('/user-budget', async (req, res) => {
+    const { budget } = req.body;
+
+    try {
+        const userId = req.session.userId; // Ensure the user is logged in
+        if (!userId) {
+            return res.status(401).json({ error: 'User not logged in' });
+        }
+
+        if (!budget) {
+            return res.status(400).json({ error: 'Budget value is required' });
+        }
+
+        const query = `
+            UPDATE users
+            SET budget = $1
+            WHERE id = $2
+            RETURNING budget;
+        `;
+        const result = await pool.query(query, [budget, userId]);
+
+        res.status(200).json({
+            message: 'Budget updated successfully',
+            budget: result.rows[0].budget,
+        });
+    } catch (error) {
+        console.error('Error updating user budget:', error);
+        res.status(500).json({ error: 'Failed to update user budget' });
+    }
+});
 
 
 
