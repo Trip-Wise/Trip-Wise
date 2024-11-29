@@ -9,10 +9,49 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
-        h1 {
+        header {
+            background-color: #00509e;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #007bff;
+            padding: 10px 20px;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1, h2 {
             text-align: center;
         }
 
@@ -22,7 +61,7 @@
             padding: 15px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            background-color: #f9f9f9;
+            background-color: #fff;
         }
 
         .form-control {
@@ -34,7 +73,7 @@
             margin-bottom: 5px;
         }
 
-        .form-control input, .form-control select {
+        .form-control input, .form-control textarea {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
@@ -67,10 +106,6 @@
             background-color: #fff;
         }
 
-        .actions button {
-            margin-right: 10px;
-        }
-
         .summary {
             margin: 20px auto;
             max-width: 500px;
@@ -84,153 +119,143 @@
 </head>
 <body>
     <header>
+        <h1>TripWise</h1>
         <div id="welcome-message"></div>
+    </header>
+
+    <nav>
+        <ul class="nav-links">
+            <li><a href="Trip.html">Home</a></li>
+            <li class="dropdown">
+                <a href="#">Features</a>
+                <ul class="dropdown-content">
+                    <li><a href="Itinerary.html">Itinerary Management</a></li>
+                    <li><a href="Index.html">Flight Lookup</a></li>
+                    <li><a href="Hotel.html">Hotel Lookup</a></li>
+                    <li><a href="Budget.html">Budget Tracking</a></li>
+                </ul>
+            </li>
+            <li><a href="#destinations">Destinations</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <!-- Logout Button -->
+            <li>
+                <form action="https://trip-wise-3njr.onrender.com/logout" method="GET" style="display: inline;">
+                    <button type="submit" class="logout-button">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- Display Total Budget and Amount Spent -->
+        <div id="budget-total" class="summary"></div>
+
+        <!-- Form to Add New Budget -->
+        <div class="budget-form">
+            <h2>Add New Expense</h2>
+            <form id="budget-form">
+                <div class="form-control">
+                    <label for="expense-name">Expense Name:</label>
+                    <input type="text" id="expense-name" required>
+                </div>
+                <div class="form-control">
+                    <label for="amount-spent">Amount Spent:</label>
+                    <input type="number" id="amount-spent" step="0.01" required>
+                </div>
+                <button type="submit">Add Expense</button>
+            </form>
+        </div>
+
+        <!-- Display Budget Records -->
+        <div class="budget-list">
+            <h2>Expense Records</h2>
+            <div id="budgets"></div>
+        </div>
+    </main>
 
     <script>
-        // Fetch user data from the server
-        fetch('https://trip-wise-3njr.onrender.com/get-user')
-            .then(response => response.json())
-            .then(data => {
-                if (data.name) {
-                    document.getElementById('welcome-message').innerText = `Welcome, ${data.name}!`;
-                } else {
-                    document.getElementById('welcome-message').innerText = `Welcome, Guest!`;
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchUserBudget();
+            fetchBudgetRecords();
+        });
+
+        async function fetchUserBudget() {
+            try {
+                const response = await fetch('https://trip-wise-3njr.onrender.com/user-budget', {
+                    credentials: 'include',
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    console.error('Error fetching user budget:', error.error);
+                    document.getElementById('budget-total').innerText = 'Error fetching budget';
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
+
+                const { totalBudget, amountSpent } = await response.json();
+                const budget = totalBudget ? parseFloat(totalBudget) : 0;
+                const spent = amountSpent ? parseFloat(amountSpent) : 0;
+
+                document.getElementById('budget-total').innerText = `Total Budget: $${budget.toFixed(2)} | Amount Spent: $${spent.toFixed(2)}`;
+            } catch (error) {
+                console.error('Error fetching user budget:', error);
+            }
+        }
+
+        async function fetchBudgetRecords() {
+            try {
+                const response = await fetch('https://trip-wise-3njr.onrender.com/budget', {
+                    credentials: 'include',
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    console.error('Backend error:', error.error);
+                    return;
+                }
+
+                const budgets = await response.json();
+
+                if (!Array.isArray(budgets)) {
+                    console.error('Expected an array, but received:', budgets);
+                    return;
+                }
+
+                const budgetsDiv = document.getElementById('budgets');
+                budgetsDiv.innerHTML = ''; // Clear previous records
+
+                budgets.forEach((budget) => {
+                    const budgetDiv = document.createElement('div');
+                    budgetDiv.className = 'budget-item';
+                    budgetDiv.innerHTML = `
+                        <p><strong>Expense:</strong> ${budget.expense_name}</p>
+                        <p><strong>Amount Spent:</strong> $${parseFloat(budget.amount_spent).toFixed(2)}</p>
+                    `;
+                    budgetsDiv.appendChild(budgetDiv);
+                });
+            } catch (error) {
+                console.error('Error fetching budget records:', error);
+            }
+        }
+
+        document.getElementById('budget-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const expenseName = document.getElementById('expense-name').value;
+            const amountSpent = document.getElementById('amount-spent').value;
+
+            try {
+                await fetch('https://trip-wise-3njr.onrender.com/budget', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ expense_name: expenseName, amount_spent: amountSpent }),
+                    credentials: 'include',
+                });
+                fetchBudgetRecords(); // Refresh the records
+                document.getElementById('budget-form').reset(); // Reset the form
+            } catch (error) {
+                console.error('Error adding budget record:', error);
+            }
+        });
     </script>
-               
-
-<div class="logo">
-    <h1>TripWise</h1>
-</div>
-<nav>
-    <ul class="nav-links">
-        <li><a href="Trip.html">Home</a></li>
-        <li class="dropdown">
-            <a href="#">Features</a>
-            <ul class="dropdown-content">
-                <li><a href="Itinerary.html">Itinerary Management</a></li>
-                <li><a href="Index.html">Flight lookup</a></li>
-                <li><a href="Hotel.html">Hotel Lookup</a></li>
-                <li><a href="Budget.html">Budget Tracking</a></li>
-            </ul>
-        </li>
-        <li><a href="#destinations">Destinations</a></li>
-        <li><a href="#contact">Contact</a></li>
-        <!-- Logout Button -->
-        <li>
-            <form action="https://trip-wise-3njr.onrender.com/logout" method="GET" style="display: inline;">
-                <button type="submit" class="logout-button">Logout</button>
-            </form>
-        </li>
-    </ul>
-</nav>
-<header>
-    <h1>Budget Management</h1>
-</header>
-
-<!-- Display Total Budget and Amount Spent -->
-<div id="budget-total"></div>
-
-<!-- Form to Add New Budget -->
-<h2>Add New Expense</h2>
-<form id="budget-form">
-    <label for="expense-name">Expense Name:</label>
-    <input type="text" id="expense-name" required>
-    <label for="amount-spent">Amount Spent:</label>
-    <input type="number" id="amount-spent" step="0.01" required>
-    <button type="submit">Add Expense</button>
-</form>
-
-<!-- Display Budget Records -->
-<h2>Expense Records</h2>
-<div id="budgets"></div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchUserBudget();
-        fetchBudgetRecords();
-    });
-
-    async function fetchUserBudget() {
-        try {
-            const response = await fetch('https://trip-wise-3njr.onrender.com/user-budget', {
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                console.error('Error fetching user budget:', error.error);
-                document.getElementById('budget-total').innerText = 'Error fetching budget';
-                return;
-            }
-
-            const { totalBudget, amountSpent } = await response.json();
-            const budget = totalBudget ? parseFloat(totalBudget) : 0;
-            const spent = amountSpent ? parseFloat(amountSpent) : 0;
-
-            document.getElementById('budget-total').innerText = `Total Budget: $${budget.toFixed(2)} | Amount Spent: $${spent.toFixed(2)}`;
-        } catch (error) {
-            console.error('Error fetching user budget:', error);
-        }
-    }
-
-    async function fetchBudgetRecords() {
-        try {
-            const response = await fetch('https://trip-wise-3njr.onrender.com/budget', {
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                console.error('Backend error:', error.error);
-                return;
-            }
-
-            const budgets = await response.json();
-
-            if (!Array.isArray(budgets)) {
-                console.error('Expected an array, but received:', budgets);
-                return;
-            }
-
-            const budgetsDiv = document.getElementById('budgets');
-            budgetsDiv.innerHTML = ''; // Clear previous records
-
-            budgets.forEach((budget) => {
-                const budgetDiv = document.createElement('div');
-                budgetDiv.innerHTML = `
-                    <p><strong>Expense:</strong> ${budget.expense_name}</p>
-                    <p><strong>Amount Spent:</strong> $${parseFloat(budget.amount_spent).toFixed(2)}</p>
-                `;
-                budgetsDiv.appendChild(budgetDiv);
-            });
-        } catch (error) {
-            console.error('Error fetching budget records:', error);
-        }
-    }
-
-    document.getElementById('budget-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const expenseName = document.getElementById('expense-name').value;
-        const amountSpent = document.getElementById('amount-spent').value;
-
-        try {
-            await fetch('https://trip-wise-3njr.onrender.com/budget', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ expense_name: expenseName, amount_spent: amountSpent }),
-                credentials: 'include',
-            });
-            fetchBudgetRecords(); // Refresh the records
-            document.getElementById('budget-form').reset(); // Reset the form
-        } catch (error) {
-            console.error('Error adding budget record:', error);
-        }
-    });
-</script>
 </body>
 </html>
