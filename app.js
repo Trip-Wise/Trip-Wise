@@ -259,28 +259,28 @@ app.post('/search-activities', async (req, res) => {
   
   // Function to get a new access token
   async function getAccessToken() {
-      try {
-          const response = await axios.post('https://test.api.amadeus.com/v1/security/oauth2/token',
-              new URLSearchParams({
-                  grant_type: 'client_credentials',
-                  client_id: process.env.AMADEUS_CLIENT_ID, // Replace with your actual client ID
-                  client_secret: process.env.AMADEUS_CLIENT_SECRET, // Replace with your actual client secret
-              }),
-              {
-                  headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded', // Required by the Amadeus API
-                  },
-              }
-          );
-  
-          accessToken = response.data.access_token;
-          tokenExpiry = Date.now() + response.data.expires_in * 1000; // Token expiry time
-          console.log('Access token retrieved successfully.');
-      } catch (error) {
-          console.error('Error fetching access token:', error.response?.data || error.message);
-          throw new Error('Failed to retrieve access token.');
-      }
-  }
+    try {
+        const response = await axios.post('https://test.api.amadeus.com/v1/security/oauth2/token',
+            new URLSearchParams({
+                grant_type: 'client_credentials',
+                client_id: process.env.AMADEUS_CLIENT_ID, // Replace with your Amadeus Client ID
+                client_secret: process.env.AMADEUS_CLIENT_SECRET, // Replace with your Amadeus Client Secret
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            }
+        );
+
+        accessToken = response.data.access_token;
+        tokenExpiry = Date.now() + response.data.expires_in * 1000;
+        console.log('Access token refreshed successfully.');
+    } catch (error) {
+        console.error('Error fetching access token:', error.response?.data || error.message);
+        throw new Error('Failed to retrieve access token.');
+    }
+}
 
 // Middleware to ensure a valid access token
 async function ensureAccessToken(req, res, next) {
@@ -294,26 +294,24 @@ async function ensureAccessToken(req, res, next) {
     next();
 }
 
-// Route to fetch hotel offers
+// Hotel Offers Search Endpoint
 app.post('/search-hotel-offers', ensureAccessToken, async (req, res) => {
     const { hotelId, adults } = req.body;
 
     if (!hotelId || !adults) {
-        return res.status(400).json({ error: 'Hotel ID and number of adults are required.' });
+        return res.status(400).json({ error: 'Both Hotel ID and number of adults are required.' });
     }
 
     try {
         const response = await axios.get('https://test.api.amadeus.com/v3/shopping/hotel-offers', {
-            params: {
-                hotelIds: hotelId,
-                adults,
-            },
+            params: { hotelIds: hotelId, adults },
             headers: {
-                Authorization: `Bearer ${accessToken}`, // Use the valid access token
+                Authorization: `Bearer ${accessToken}`,
             },
         });
 
-        res.json(response.data.data); // Send back the offers data
+        // Send back the offers data
+        res.json(response.data.data || []);
     } catch (error) {
         console.error('Error fetching hotel offers:', error.response?.data || error.message);
         res.status(500).json({ error: 'Failed to fetch hotel offers.' });
