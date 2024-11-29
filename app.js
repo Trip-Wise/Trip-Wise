@@ -310,7 +310,6 @@ app.post('/search-hotel-offers', ensureAccessToken, async (req, res) => {
             },
         });
 
-        // Send back the offers data
         res.json(response.data.data || []);
     } catch (error) {
         console.error('Error fetching hotel offers:', error.response?.data || error.message);
