@@ -241,9 +241,10 @@ app.post('/search-activities', async (req, res) => {
             pictures: activity.pictures || [], // Add pictures (it could be an array of URLs)
             bookingLink: activity.bookingLink,
             price: activity.price.amount,
+            type: activity.type,
             currencyCode: activity.price.currencyCode
         }));
-        
+
 
 
         console.log('Raw API Response:', JSON.stringify(response.data, null, 2));

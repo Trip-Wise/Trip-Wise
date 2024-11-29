@@ -224,14 +224,14 @@
             }
 
             activities.forEach((activity) => {
-                const { name, shortDescription, latitude, longitude, category, rating, pictures, bookingLink, price, currencyCode } = activity;
+                const { name, shortDescription, latitude, longitude, category, rating, pictures, bookingLink, price, currencyCode, type } = activity;
 
                 const activityDiv = document.createElement('div');
                 activityDiv.className = 'activity';
                 activityDiv.innerHTML = `
                     <h3>${name || 'No Name Available'}</h3>
                     <p><strong>Description:</strong> ${shortDescription || 'No Description Available'}</p>
-                    <p><strong>Category:</strong> ${category || 'Not Specified'}</p>
+                    <p><strong>Type:</strong> ${type || 'Not Specified'}</p>
                     <p><strong>Rating:</strong> ${rating || 'No rating available'}</p>
                     
                     ${pictures && pictures.length > 0 ? `
