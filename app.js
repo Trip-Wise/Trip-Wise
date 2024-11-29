@@ -315,6 +315,12 @@ app.post('/search-hotel-offers', ensureAccessToken, async (req, res) => {
         console.error('Error fetching hotel offers:', error.response?.data || error.message);
         res.status(500).json({ error: 'Failed to fetch hotel offers.' });
     }
+    console.log('Full Response:', response);
+
+        // Log the data portion (commonly needed)
+    console.log('Response Data:', response.data);
+
+
 });
 
 app.post('/add-itinerary', async (req, res) => {
