@@ -649,6 +649,39 @@ app.put('/user-budget', async (req, res) => {
     }
 });
 
+// Update or set the user's budget
+app.post('/user-budget', async (req, res) => {
+    const { total_budget } = req.body;
+    const userId = req.session.userId; // Assuming you use sessions to track logged-in users
+
+    // Validate the request
+    if (!userId) {
+        return res.status(401).json({ error: 'User not logged in' });
+    }
+
+    if (!total_budget) {
+        return res.status(400).json({ error: 'Total budget is required' });
+    }
+
+    try {
+        // Update the budget in the users table
+        const query = `
+            UPDATE users
+            SET budget = $1
+            WHERE id = $2
+            RETURNING budget;
+        `;
+        const values = [parseFloat(total_budget), userId];
+        const result = await pool.query(query, values);
+
+        // Respond with the updated budget
+        res.json({ totalBudget: result.rows[0].budget });
+    } catch (error) {
+        console.error('Error updating budget:', error);
+        res.status(500).json({ error: 'Failed to update budget' });
+    }
+});
+
 
 
 
