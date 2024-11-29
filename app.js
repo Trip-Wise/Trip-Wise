@@ -237,13 +237,13 @@ app.post('/search-activities', async (req, res) => {
             latitude: activity.geoCode?.latitude || null,
             longitude: activity.geoCode?.longitude || null,
             category: activity.category || 'Not Specified',
-            tags: activity.tags || [],
-            Type: activity.type ,
+            rating: activity.rating || 'No rating available',  // Add rating field
+            pictures: activity.pictures || [], // Add pictures (it could be an array of URLs)
             bookingLink: activity.bookingLink,
             price: activity.price.amount,
             currencyCode: activity.price.currencyCode
-
         }));
+
         console.log('Raw API Response:', JSON.stringify(response.data, null, 2));
         res.json(activities); // Send the transformed activities
     } catch (error) {
@@ -251,6 +251,7 @@ app.post('/search-activities', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch activities' });
     }
 });
+
 
  
 
