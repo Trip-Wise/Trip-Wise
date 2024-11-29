@@ -588,11 +588,11 @@ app.get('/user-budget', async (req, res) => {
         }
 
         const budgetQuery = `
-            SELECT 
-                (SELECT budget FROM users WHERE id = $1) AS total_budget,
-                COALESCE(SUM(amount_spent), 0) AS amount_spent
-            FROM budget
-            WHERE user_id = $1;
+        SELECT 
+            COALESCE((SELECT budget FROM users WHERE id = $1), 0) AS total_budget,
+            COALESCE(SUM(amount_spent), 0) AS amount_spent
+        FROM budget
+        WHERE user_id = $1;
         `;
 
         const result = await pool.query(budgetQuery, [userId]);
@@ -602,8 +602,8 @@ app.get('/user-budget', async (req, res) => {
             return res.status(500).json({ error: 'Failed to fetch user budget' });
         }
 
-        const { total_budget, amount_spent } = result.rows[0];
-        res.status(200).json({ budget: total_budget || 0, amount_spent });
+        const { total_budget: totalBudget, amount_spent: amountSpent } = result.rows[0] || {};
+res.status(200).json({ totalBudget: parseFloat(totalBudget), amountSpent: parseFloat(amountSpent) });
     } catch (error) {
         console.error('Error fetching user budget:', error);
         res.status(500).json({ error: 'Internal server error' });
