@@ -82,6 +82,52 @@
     </style>
 </head>
 <body>
+    <header>
+        <div id="welcome-message"></div>
+
+    <script>
+        // Fetch user data from the server
+        fetch('https://trip-wise-3njr.onrender.com/get-user')
+            .then(response => response.json())
+            .then(data => {
+                if (data.name) {
+                    document.getElementById('welcome-message').innerText = `Welcome, ${data.name}!`;
+                } else {
+                    document.getElementById('welcome-message').innerText = `Welcome, Guest!`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+            });
+    </script>
+               
+
+<div class="logo">
+    <h1>TripWise</h1>
+</div>
+<nav>
+    <ul class="nav-links">
+        <li><a href="Trip.html">Home</a></li>
+        <li class="dropdown">
+            <a href="#">Features</a>
+            <ul class="dropdown-content">
+                <li><a href="Itinerary.html">Itinerary Management</a></li>
+                <li><a href="Index.html">Flight lookup</a></li>
+                <li><a href="Hotel.html">Hotel Lookup</a></li>
+                <li><a href="Budget.html">Budget Tracking</a></li>
+            </ul>
+        </li>
+        <li><a href="#destinations">Destinations</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <!-- Logout Button -->
+        <li>
+            <form action="https://trip-wise-3njr.onrender.com/logout" method="GET" style="display: inline;">
+                <button type="submit" class="logout-button">Logout</button>
+            </form>
+        </li>
+    </ul>
+</nav>
+    </header>
     <h1>Budget Management</h1>
 
     <!-- User Budget Section -->
