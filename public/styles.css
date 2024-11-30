@@ -8,6 +8,7 @@ body {
     font-family: Arial, sans-serif;
     color: #333;
     background-color: #f8f9fa;
+
 }
 
 header {
@@ -164,10 +165,12 @@ nav .dropdown:hover .dropdown-content {
 }
 
 footer {
-    background: #00509e;
-    color: #fff;
-    padding: 20px;
+    background-color: #00509e; /* Adjust to match your theme */
+    color: white;
     text-align: center;
+    padding: 10px 20px;
+    position: relative; /* No absolute positioning needed for sticky footer */
+    width: 100%;
 }
 
 footer a {
@@ -190,3 +193,6 @@ margin-left: 10px;
 .logout-button:hover {
 background-color: #223e5a;
 }        
+.content {
+    flex: 1; /* Ensures the content expands to take up available space */
+}
