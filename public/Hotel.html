@@ -27,6 +27,7 @@
     gap: 10px;
     justify-content: center;
     align-items: center;
+    margin-bottom: 10px; /* Adds space between the form and the text */
 }
 
 #hotel-search-form input {
@@ -51,7 +52,12 @@
 #hotel-search-form button:hover {
     background-color: #00509e;
 }
-
+.help-text {
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+    margin-top: 10px;
+}
 #results {
     margin-top: 20px;
     padding: 20px;
@@ -379,9 +385,10 @@ button {
         <form id="hotel-search-form">
             <input type="text" id="iata-code" name="iataCode" placeholder="Enter City IATA Code (e.g., NCE)" required />
             <button type="submit">Search Hotels</button>
-            <li>Not sure what to place in the field? click <a href="https://www.iata.org/en/publications/directories/code-search/" target="_blank" rel="noopener noreferrer">here</a> to search for codes</li>
         </form>
+        <p class="help-text">Not sure what to place in the field? Click <a href="https://www.iata.org/en/publications/directories/code-search/" target="_blank" rel="noopener noreferrer">here</a> to search for codes.</p>
     </div>
+    
     <div id="results">
         <h2>Hotel Results:</h2>
         <div id="hotels"></div>
