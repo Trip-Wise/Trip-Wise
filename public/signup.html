@@ -11,18 +11,20 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
             margin: 0;
+            flex-direction: column; /* Ensures a vertical layout */
         }
         .login-container {
             display: flex;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: auto; /* Centers the login container */
+}
         .welcome-section {
             background-color: #0072ff;
             padding: 2rem;
