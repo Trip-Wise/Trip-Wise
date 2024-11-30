@@ -165,12 +165,13 @@ nav .dropdown:hover .dropdown-content {
 }
 
 footer {
-    background-color: #00509e; /* Adjust to match your theme */
-    color: white;
+    background-color: #00509e;
+    color: #fff;
     text-align: center;
     padding: 10px 20px;
-    position: relative; /* No absolute positioning needed for sticky footer */
+    position: relative;
     width: 100%;
+    margin-top: auto; /* Ensures the footer stays at the bottom */
 }
 
 footer a {
