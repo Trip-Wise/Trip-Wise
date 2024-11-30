@@ -262,40 +262,71 @@
         }
 
         async function fetchBudgetRecords() {
-            try {
-                const response = await fetch('https://trip-wise-3njr.onrender.com/budget', {
-                    credentials: 'include',
-                });
+    try {
+        const response = await fetch('https://trip-wise-3njr.onrender.com/budget', {
+            credentials: 'include',
+        });
 
-                if (!response.ok) {
-                    const error = await response.json();
-                    console.error('Backend error:', error.error);
-                    return;
-                }
-
-                const budgets = await response.json();
-
-                if (!Array.isArray(budgets)) {
-                    console.error('Expected an array, but received:', budgets);
-                    return;
-                }
-
-                const budgetsDiv = document.getElementById('budgets');
-                budgetsDiv.innerHTML = ''; // Clear previous records
-
-                budgets.forEach((budget) => {
-                    const budgetDiv = document.createElement('div');
-                    budgetDiv.className = 'budget-item';
-                    budgetDiv.innerHTML = `
-                        <p><strong>Expense:</strong> ${budget.expense_name}</p>
-                        <p><strong>Amount Spent:</strong> $${parseFloat(budget.amount_spent).toFixed(2)}</p>
-                    `;
-                    budgetsDiv.appendChild(budgetDiv);
-                });
-            } catch (error) {
-                console.error('Error fetching budget records:', error);
-            }
+        if (!response.ok) {
+            const error = await response.json();
+            console.error('Backend error:', error.error);
+            return;
         }
+
+        const budgets = await response.json();
+
+        if (!Array.isArray(budgets)) {
+            console.error('Expected an array, but received:', budgets);
+            return;
+        }
+
+        const budgetsDiv = document.getElementById('budgets');
+        budgetsDiv.innerHTML = ''; // Clear previous records
+
+        budgets.forEach((budget) => {
+            const budgetDiv = document.createElement('div');
+            budgetDiv.className = 'budget-item';
+            budgetDiv.innerHTML = `
+                <p><strong>Expense:</strong> ${budget.expense_name}</p>
+                <p><strong>Amount Spent:</strong> $${parseFloat(budget.amount_spent).toFixed(2)}</p>
+                <button class="delete-button" data-id="${budget.id}">Delete</button>
+            `;
+            budgetsDiv.appendChild(budgetDiv);
+        });
+
+        // Add event listeners to the delete buttons
+        const deleteButtons = document.querySelectorAll('.delete-button');
+        deleteButtons.forEach((button) =>
+            button.addEventListener('click', async (event) => {
+                const budgetId = event.target.getAttribute('data-id');
+                await deleteBudgetRecord(budgetId);
+            })
+        );
+    } catch (error) {
+        console.error('Error fetching budget records:', error);
+    }
+}
+
+async function deleteBudgetRecord(id) {
+    try {
+        const response = await fetch(`https://trip-wise-3njr.onrender.com/budget/${id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            console.error('Error deleting budget record:', error.error);
+            return;
+        }
+
+        console.log('Budget record deleted successfully');
+        fetchBudgetRecords(); // Refresh the records
+        fetchUserBudget(); // Refresh budget summary
+    } catch (error) {
+        console.error('Error deleting budget record:', error);
+    }
+}
 
         document.getElementById('set-budget-form').addEventListener('submit', async (event) => {
             event.preventDefault();
