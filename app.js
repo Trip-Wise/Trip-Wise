@@ -71,7 +71,7 @@ app.get('/logout', (req, res) => {
         if (err) {
             return res.status(500).send('Error logging out.');
         }
-        res.redirect('/login.html'); // Redirect to the login page after logout
+        res.redirect('/login.html'); 
     });
 });
 
@@ -84,18 +84,18 @@ app.post('/signup', async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
-        // Hash the password
+        
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Store hashed password in the database
+        
         const query = 'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *';
         const values = [name, email, hashedPassword];
 
         const result = await pool.query(query, values);
         const user = result.rows[0];
 
-        // Create a session
+        
         req.session.userId = user.id;
         req.session.userName = user.name;
 
@@ -115,32 +115,32 @@ app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Fetch user data from the database
+        
         const query = 'SELECT * FROM users WHERE email = $1';
         const result = await pool.query(query, [email]);
 
         if (result.rows.length === 0) {
-            return res.status(401).json({ error: 'Invalid email or password' }); // Send error in JSON
+            return res.status(401).json({ error: 'Invalid email or password' }); 
         }
 
         const user = result.rows[0];
 
-        // Compare provided password with hashed password in the database
+        
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid email or password' }); // Send error in JSON
+            return res.status(401).json({ error: 'Invalid email or password' });
         }
 
-        // Create session for the logged-in user
+       
         req.session.userId = user.id;
         req.session.userName = user.name;
 
-        // Send a JSON response with user_id on successful login
-        res.status(200).json({ user_id: user.id }); // Return JSON
+        
+        res.status(200).json({ user_id: user.id });
     } catch (err) {
         console.error('Error during login:', err);
-        res.status(500).json({ error: 'Error logging in.' }); // Return error in JSON
+        res.status(500).json({ error: 'Error logging in.' });
     }
 });
 
@@ -199,14 +199,14 @@ const amadeus = new Amadeus({
         cityCode: iataCode,
       });
   
-      // Extract relevant fields, including hotelId
+      
       const hotels = response.data.map((hotel) => ({
         name: hotel.name,
         geoCode: hotel.geoCode,
-        hotelId: hotel.hotelId, // Include hotelId
+        hotelId: hotel.hotelId, 
       }));
   
-      res.json(hotels); // Send back the updated data
+      res.json(hotels); 
     } catch (error) {
       console.error('Error fetching hotel data:', error);
       res.status(500).json({ error: 'Failed to fetch hotel data.' });
@@ -230,15 +230,15 @@ app.post('/search-activities', async (req, res) => {
             longitude: parseFloat(longitude),
         });
 
-        // Transform the data to include only the desired fields
+        
         const activities = response.data.map((activity) => ({
             name: activity.name || 'No Name Available',
             shortDescription: activity.shortDescription || 'No Description Available',
             latitude: activity.geoCode?.latitude || null,
             longitude: activity.geoCode?.longitude || null,
             category: activity.category || 'Not Specified',
-            rating: activity.rating || 'No rating available',  // Add rating field
-            pictures: activity.pictures || [], // Add pictures (it could be an array of URLs)
+            rating: activity.rating || 'No rating available',  
+            pictures: activity.pictures || [], 
             bookingLink: activity.bookingLink,
             price: activity.price.amount,
             type: activity.type,
@@ -248,7 +248,7 @@ app.post('/search-activities', async (req, res) => {
 
 
         console.log('Raw API Response:', JSON.stringify(response.data, null, 2));
-        res.json(activities); // Send the transformed activities
+        res.json(activities); 
     } catch (error) {
         console.error('Error fetching activities:', error);
         res.status(500).json({ error: 'Failed to fetch activities' });
@@ -261,14 +261,14 @@ app.post('/search-activities', async (req, res) => {
   let accessToken = null;
   let tokenExpiry = null;
   
-  // Function to get a new access token
+  
   async function getAccessToken() {
     try {
         const response = await axios.post('https://test.api.amadeus.com/v1/security/oauth2/token',
             new URLSearchParams({
                 grant_type: 'client_credentials',
-                client_id: process.env.AMADEUS_CLIENT_ID, // Replace with your Amadeus Client ID
-                client_secret: process.env.AMADEUS_CLIENT_SECRET, // Replace with your Amadeus Client Secret
+                client_id: process.env.AMADEUS_CLIENT_ID, 
+                client_secret: process.env.AMADEUS_CLIENT_SECRET, 
             }),
             {
                 headers: {
@@ -286,7 +286,7 @@ app.post('/search-activities', async (req, res) => {
     }
 }
 
-// Middleware to ensure a valid access token
+
 async function ensureAccessToken(req, res, next) {
     if (!accessToken || Date.now() >= tokenExpiry) {
         try {
@@ -298,7 +298,7 @@ async function ensureAccessToken(req, res, next) {
     next();
 }
 
-// Hotel Offers Search Endpoint
+
 app.post('/search-hotel-offers', ensureAccessToken, async (req, res) => {
     const { hotelId, adults } = req.body;
 
@@ -321,7 +321,7 @@ app.post('/search-hotel-offers', ensureAccessToken, async (req, res) => {
     }
     console.log('Full Response:', response);
 
-        // Log the data portion (commonly needed)
+       
     console.log('Response Data:', response.data);
 
 
@@ -330,16 +330,16 @@ app.post('/search-hotel-offers', ensureAccessToken, async (req, res) => {
 app.post('/add-itinerary', async (req, res) => {
     const { user_id, destination, start_date, end_date, notes } = req.body;
 
-    // Validation: Ensure user_id and other required fields are present
+    
     if (!user_id || !destination || !start_date || !end_date) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
-        // Set default value for notes if not provided
+        
         const defaultNotes = notes || 'N/A';
 
-        // Insert data into the itinerary table
+        
         const query = `
             INSERT INTO itinerary (user_id, destination, start_date, end_date, notes)
             VALUES ($1, $2, $3, $4, $5)
@@ -349,7 +349,7 @@ app.post('/add-itinerary', async (req, res) => {
         const values = [user_id, destination, start_date, end_date, defaultNotes];
         const result = await pool.query(query, values);
 
-        // Respond with the newly created itinerary
+        
         res.status(201).json({
             message: 'Itinerary created successfully',
             itinerary: result.rows[0],
@@ -360,7 +360,7 @@ app.post('/add-itinerary', async (req, res) => {
     }
 });
 
-// Route to fetch user itineraries
+
 app.get('/itineraries', async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'User not logged in' });
@@ -371,8 +371,8 @@ app.get('/itineraries', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM itinerary WHERE user_id = $1', [userId]);
         
-        // Return the list of itineraries as an array
-        res.json(result.rows); // `result.rows` is an array of itineraries
+        
+        res.json(result.rows); 
     } catch (error) {
         console.error('Error fetching itineraries:', error);
         res.status(500).json({ error: 'Failed to fetch itineraries' });
@@ -469,7 +469,7 @@ app.get('/budget', async (req, res) => {
     try {
         const userId = req.session.userId;
         if (!userId) {
-            return res.status(401).json({ error: 'User not logged in' }); // Ensure user is logged in
+            return res.status(401).json({ error: 'User not logged in' }); 
         }
 
         const query = `
@@ -479,7 +479,7 @@ app.get('/budget', async (req, res) => {
         `;
         const result = await pool.query(query, [userId]);
 
-        // Ensure result.rows is returned as an array
+      
         if (!Array.isArray(result.rows)) {
             console.error('Expected an array, got:', result.rows);
             return res.status(500).json({ error: 'Unexpected response from database' });
@@ -497,7 +497,7 @@ app.post('/budget', async (req, res) => {
     const { expense_name, amount_spent } = req.body;
 
     try {
-        const userId = req.session.userId; // Ensure the user is logged in
+        const userId = req.session.userId; 
         if (!userId) {
             return res.status(401).json({ error: 'User not logged in' });
         }
@@ -529,7 +529,7 @@ app.put('/budget/:id', async (req, res) => {
     const { expense_name, amount_spent } = req.body;
 
     try {
-        const userId = req.session.userId; // Ensure the user is logged in
+        const userId = req.session.userId; 
         if (!userId) {
             return res.status(401).json({ error: 'User not logged in' });
         }
@@ -564,7 +564,7 @@ app.delete('/budget/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        const userId = req.session.userId; // Ensure the user is logged in
+        const userId = req.session.userId; 
         if (!userId) {
             return res.status(401).json({ error: 'User not logged in' });
         }
@@ -622,7 +622,7 @@ app.put('/user-budget', async (req, res) => {
     const { budget } = req.body;
 
     try {
-        const userId = req.session.userId; // Ensure the user is logged in
+        const userId = req.session.userId; 
         if (!userId) {
             return res.status(401).json({ error: 'User not logged in' });
         }
@@ -649,12 +649,12 @@ app.put('/user-budget', async (req, res) => {
     }
 });
 
-// Update or set the user's budget
+
 app.post('/user-budget', async (req, res) => {
     const { total_budget } = req.body;
-    const userId = req.session.userId; // Assuming you use sessions to track logged-in users
+    const userId = req.session.userId; 
 
-    // Validate the request
+   
     if (!userId) {
         return res.status(401).json({ error: 'User not logged in' });
     }
@@ -664,7 +664,7 @@ app.post('/user-budget', async (req, res) => {
     }
 
     try {
-        // Update the budget in the users table
+      
         const query = `
             UPDATE users
             SET budget = $1
@@ -674,18 +674,28 @@ app.post('/user-budget', async (req, res) => {
         const values = [parseFloat(total_budget), userId];
         const result = await pool.query(query, values);
 
-        // Respond with the updated budget
+        
         res.json({ totalBudget: result.rows[0].budget });
     } catch (error) {
         console.error('Error updating budget:', error);
         res.status(500).json({ error: 'Failed to update budget' });
     }
 });
+app.delete('/budget/:id', (req, res) => {
+    const { id } = req.params;
+    const budgetIndex = budgets.findIndex((budget) => budget.id === parseInt(id));
+
+    if (budgetIndex === -1) {
+        return res.status(404).json({ error: 'Budget record not found' });
+    }
+
+    budgets.splice(budgetIndex, 1);
+    res.json({ message: 'Budget record deleted successfully' });
+});
 
 
 
-
-const PORT = process.env.PORT || 3000; // Use the environment-provided port or default to 3000
+const PORT = process.env.PORT || 3000; 
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
